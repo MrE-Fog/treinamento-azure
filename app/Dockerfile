@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-  FROM nginx:alpine
+  FROM nginx:latest
   # RUN apt-get update 
   WORKDIR /app
   COPY . /usr/share/nginx/html
