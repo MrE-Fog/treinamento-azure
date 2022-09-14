@@ -1,7 +1,8 @@
-FROM node:12-alpine
-RUN apk add --no-cache python2 g++ make
-WORKDIR /app
-COPY . .
-RUN yarn install --production
-CMD ["node", "src/index.js"]
-EXPOSE 3000
+# syntax=docker/dockerfile:experimental
+  FROM nginx:alpine
+  # RUN apt-get update 
+  WORKDIR /app
+  COPY static /usr/share/nginx/html
+  # RUN 
+  # CMD ["nginx", "app/index.html"]
+  EXPOSE 80
