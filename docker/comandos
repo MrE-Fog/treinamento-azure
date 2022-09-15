@@ -1,0 +1,71 @@
+#Links Uteis
+https://docs.docker.com/desktop/windows/install
+https://hub.docker.com
+
+Docker
+
+docker --version
+
+#Git
+mkdir dockerlocal
+cd dockerlocal
+git clone https://github.com/docker/getting-started.git
+cd getting-started/
+ls
+rm Dockerfile
+ls
+
+# Executar container
+docker run
+docker run -d (posso usar terminal)
+docker run -d -p 80:80 docker/getting-started  (terminal+80) ou docker run -d -p 80:80 nginx ou docker run -d -p 80:80 httpd
+docker run -ti -p 80:80 docker/getting-started  (dentro do contanier+80)
+
+#entrar no container no ssh
+docker container exec -it +id (executar terminal) + /bin/sh
+
+#listar container
+docker ps
+docker container ls
+docker ps -a
+
+#listar imagens
+docker images
+docker image
+
+#inpencionar imagens
+docker image inspect nomecontainer ou ID
+
+#gerenciar parada e incio de container
+docker stop +id
+docker start +id
+docker restart +id
+
+docker logs -f + id  (logs)
+
+docker rm +id  (remove container)
+docker rmi +id  (remove imagem)
+
+#docker build
+docker build -t nome da imagem .
+
+#criacao de imagem
+docker build -t app .
+
+docker tag local-image:tag-name username/reponame:tagname
+
+docker push <username>/<reponame>:<tagname>
+
+docker login
+
+docker pull ubuntu
+
+docker images
+
+docker tag app:latest alexosousa/acr:1.0
+
+docker push alexosousa/acr:1.0
+
+docker login url
+docker run 
+docker push test

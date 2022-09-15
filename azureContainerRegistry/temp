@@ -1,0 +1,63 @@
+{
+  "adminUserEnabled": false,
+  "anonymousPullEnabled": false,
+  "creationDate": "2022-09-13T17:30:32.791714+00:00",
+  "dataEndpointEnabled": false,
+  "dataEndpointHostNames": [],
+  "encryption": {
+    "keyVaultProperties": null,
+    "status": "disabled"
+  },
+  "id": "/subscriptions/27e37700-1db6-44f0-b6b4-84df4b0e2e4a/resourceGroups/RG-ACR/providers/Microsoft.ContainerRegistry/registries/imersaoazure",
+  "identity": null,
+  "location": "eastus2",
+  "loginServer": "imersaoazure.azurecr.io",
+  "name": "imersaoazure",
+  "networkRuleBypassOptions": "AzureServices",
+  "networkRuleSet": null,
+  "policies": {
+    "azureAdAuthenticationAsArmPolicy": {
+      "status": "enabled"
+    },
+    "exportPolicy": {
+      "status": "enabled"
+    },
+    "quarantinePolicy": {
+      "status": "disabled"
+    },
+    "retentionPolicy": {
+      "days": 7,
+      "lastUpdatedTime": "2022-09-13T17:30:33.922156+00:00",
+      "status": "disabled"
+    },
+    "softDeletePolicy": {
+      "lastUpdatedTime": "2022-09-13T17:30:33.922156+00:00",
+      "retentionDays": 7,
+      "status": "disabled"
+    },
+    "trustPolicy": {
+      "status": "disabled",
+      "type": "Notary"
+    }
+  },
+  "privateEndpointConnections": [],
+  "provisioningState": "Succeeded",
+  "publicNetworkAccess": "Enabled",
+  "resourceGroup": "RG-ACR",
+  "sku": {
+    "name": "Basic",
+    "tier": "Basic"
+  },
+  "status": null,
+  "systemData": {
+    "createdAt": "2022-09-13T17:30:32.791714+00:00",
+    "createdBy": "alex.sousa@totalnuvem.com",
+    "createdByType": "User",
+    "lastModifiedAt": "2022-09-13T17:30:32.791714+00:00",
+    "lastModifiedBy": "alex.sousa@totalnuvem.com",
+    "lastModifiedByType": "User"
+  },
+  "tags": {},
+  "type": "Microsoft.ContainerRegistry/registries",
+  "zoneRedundancy": "Disabled"
+}

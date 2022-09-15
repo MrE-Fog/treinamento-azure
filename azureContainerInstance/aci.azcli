@@ -1,0 +1,224 @@
+# AzureCli (Bash)
+
+#ACI
+
+#Criar ACI
+az group create --name RG-ACI --location eastus2
+DNS_NAME_LABEL=ACI-DEMO-$RANDOM
+
+az container create \
+  --resource-group RG-ACI \
+  --name mycontainer \
+  --image mcr.microsoft.com/azuredocs/aci-helloworld \
+  --ports 80 \
+  --dns-name-label $DNS_NAME_LABEL \
+  --location eastus2
+
+  az container show \
+  --resource-group RG-ACI \
+  --name mycontainer \
+  --query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" \
+  --output table
+
+#Executar um comando dentro contêiner
+az container exec \
+  --resource-group RG-ACI \
+  --name aci-demo \
+  --exec-command /bin/sh
+
+ls
+
+az group delete --name RG-ACI --yes
+
+#################################################################################################################################################
+
+#Políticas de reinicialização de contêiner 
+#(As Instâncias de Contêiner do Azure têm três opções de política de reinicialização)
+
+# Always	
+# Os contêineres no grupo de contêineres sempre são reiniciados. Essa política faz sentido para tarefas com execução prolongada, 
+# como um servidor Web. Essa é a configuração padrão aplicada quando nenhuma política de reinicialização é especificada na criação do contêiner.
+
+# Never	
+# Os contêineres no grupo de contêineres nunca são reiniciados. Os contêineres são executados somente uma vez.
+
+# OnFailure	
+# Os contêineres no grupo de contêineres são reiniciados somente quando o processo executado no contêiner falha 
+# (quando ele termina com um código de saída diferente de zero). Os contêineres são executados pelo menos uma vez. 
+# Essa política funciona bem para contêineres que realizam tarefas de curta duração.
+
+az group create --name RG-ACI --location eastus2
+
+az container create \
+  --resource-group RG-ACI \
+  --name mycontainer-restart-demo \
+  --image mcr.microsoft.com/azuredocs/aci-wordcount:latest \
+  --restart-policy OnFailure \
+  --location eastus2
+
+az container show \
+  --resource-group RG-ACI \
+  --name mycontainer-restart-demo \
+  --query "containers[0].instanceView.currentState.state"
+
+az container logs \
+  --resource-group RG-ACI \
+  --name mycontainer-restart-demo
+
+#################################################################################################################################################
+
+# Container Instance + Banco de Dados + variáveis de ambiente  
+
+#Banco de Dados
+
+az group create --name RG-ACI --location eastus2
+
+COSMOS_DB_NAME=aci-cosmos-db-$RANDOM
+
+COSMOS_DB_ENDPOINT=$(az cosmosdb create \
+  --resource-group RG-ACI \
+  --name $COSMOS_DB_NAME \
+  --query documentEndpoint \
+  --output tsv)
+
+COSMOS_DB_MASTERKEY=$(az cosmosdb keys list \
+  --resource-group RG-ACI \
+  --name $COSMOS_DB_NAME \
+  --query primaryMasterKey \
+  --output tsv)
+
+#contêiner integrado banco de dados    
+
+az container create \
+  --resource-group RG-ACI \
+  --name aci-demo \
+  --image mcr.microsoft.com/azuredocs/azure-vote-front:cosmosdb \
+  --ip-address Public \
+  --location eastus2 \
+  --environment-variables \
+    COSMOS_DB_ENDPOINT=$COSMOS_DB_ENDPOINT \
+    COSMOS_DB_MASTERKEY=$COSMOS_DB_MASTERKEY
+
+az container show \
+  --resource-group RG-ACI \
+  --name aci-demo \
+  --query ipAddress.ip \
+  --output tsv    
+
+##Usar variáveis de ambiente seguras para ocultar as informações de conexão
+
+az container show \
+  --resource-group RG-ACI \
+  --name aci-demo \
+  --query containers[0].environmentVariables
+
+az container create \
+  --resource-group RG-ACI \
+  --name aci-demo-secure \
+  --image mcr.microsoft.com/azuredocs/azure-vote-front:cosmosdb \
+  --ip-address Public \
+  --location eastus2 \
+  --secure-environment-variables \
+    COSMOS_DB_ENDPOINT=$COSMOS_DB_ENDPOINT \
+    COSMOS_DB_MASTERKEY=$COSMOS_DB_MASTERKEY
+
+ az container show \
+  --resource-group RG-ACI \
+  --name aci-demo-secure \
+  --query containers[0].environmentVariables   
+
+#################################################################################################################################################
+
+#Compartilhamento de arquivo do Azure com ACI
+
+STORAGE_ACCOUNT_NAME=mystorageaccount$RANDOM
+
+az storage account create \
+  --resource-group RG-ACI\
+  --name $STORAGE_ACCOUNT_NAME \
+  --sku Standard_LRS \
+  --location eastus2
+
+export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
+  --resource-group RG-ACI \
+  --name $STORAGE_ACCOUNT_NAME \
+  --output tsv)  
+
+az storage share create --name aci-share-demo
+
+#Obter credenciais de armazenamento
+
+STORAGE_KEY=$(az storage account keys list \
+  --resource-group RG-ACI \
+  --account-name $STORAGE_ACCOUNT_NAME \
+  --query "[0].value" \
+  --output tsv)
+
+echo $STORAGE_KEY
+
+#Implantar um contêiner e montar o compartilhamento de arquivos
+
+az container create \
+  --resource-group RG-ACI \
+  --name aci-demo-files \
+  --image mcr.microsoft.com/azuredocs/aci-hellofiles \
+  --location eastus \
+  --ports 80 \
+  --ip-address Public \
+  --azure-file-volume-account-name $STORAGE_ACCOUNT_NAME \
+  --azure-file-volume-account-key $STORAGE_KEY \
+  --azure-file-volume-share-name aci-share-demo \
+  --azure-file-volume-mount-path /aci/logs/
+
+az container show \
+  --resource-group RG-ACI \
+  --name aci-demo-files \
+  --query ipAddress.ip \
+  --output tsv
+
+#exibir os arquivos que estão contidos no compartilhamento
+az storage file list -s aci-share-demo -o table
+
+az storage file download -s aci-share-demo -p <filename>
+
+cat <filename>
+
+#################################################################################################################################################
+
+#Solucionar problemas das Instâncias de Contêiner do Azure
+
+#logs
+az container logs \
+  --resource-group RG-ACI \
+  --name aci-demo
+
+#eventos
+az container attach \
+  --resource-group RG-ACI \
+  --name aci-demo  
+
+#Executar um comando dentro contêiner
+az container exec \
+  --resource-group RG-ACI \
+  --name aci-demo \
+  --exec-command /bin/sh  
+
+ls
+
+#Monitorar o uso de memória e CPU
+CONTAINER_ID=$(az container show \
+  --resource-group RG-ACI \
+  --name aci-demo \
+  --query id \
+  --output tsv)
+
+az monitor metrics list \
+  --resource $CONTAINER_ID \
+  --metrics CPUUsage \
+  --output table  
+
+az monitor metrics list \
+  --resource $CONTAINER_ID \
+  --metrics MemoryUsage \
+  --output table
+

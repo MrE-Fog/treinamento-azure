@@ -1,0 +1,49 @@
+#Criar um aplicativo Web
+
+# escolher pilha .NET Core 3.1 (LTS)
+
+#Criar repositorio
+git init
+git add .
+git commit -m "Initial commit"
+
+#baixar e instalar o dotnet
+wget -q -O - https://dot.net/v1/dotnet-install.sh | bash -s -- --version 3.1.102
+export PATH="~/.dotnet:$PATH"
+echo "export PATH=~/.dotnet:\$PATH" >> ~/.bashrc
+
+#criar um aplicativo MVC ASP.NET Core chamado "BestBikeApp".
+dotnet new mvc --name BestBikeApp
+
+#Teste Aplicativo
+cd BestBikeApp
+dotnet run
+curl -kL http://127.0.0.1:5000/
+
+#compilar os arquivos
+cd ~/BestBikeApp
+dotnet publish -o pub
+cd pub
+zip -r site.zip *
+
+#execute a implantação com az webapp deployment source config-zip. Substitua <your-app-name> no comando a seguir pelo nome de seu aplicativo Web do Azure e execute-o.
+az webapp deployment source config-zip \
+    --src site.zip \
+    --resource-group [sandbox resource group name] \
+    --name <your-app-name>
+
+# criação de aplicativos Web com o Serviço de Aplicativo
+
+az group create --name learn-deploy-container-acr-rg --location eastus2
+ACR_NAME=imersaoazure
+az acr create --resource-group RG-ACR --name $ACR_NAME --sku Standard
+
+#Criar uma imagem do Docker e carregá-la no Registro de Contêiner do Azure
+
+git clone https://github.com/MicrosoftDocs/mslearn-deploy-run-container-app-service.git
+cd mslearn-deploy-run-container-app-service/dotnet
+az acr build --registry <container_registry_name> --image webimage .
+
+az acr task create --registry <container_registry_name> --name buildwebapp --image webimage --context https://github.com/MicrosoftDocs/mslearn-deploy-run-container-app-service.git --file Dockerfile --git-access-token <access_token>
+
+https://docs.microsoft.com/pt-br/training/modules/deploy-run-container-app-service/1-introduction

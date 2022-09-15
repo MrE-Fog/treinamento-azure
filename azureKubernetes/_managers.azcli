@@ -1,0 +1,50 @@
+#Gerenciamento 
+
+#logins
+az account set --subscription 27e37700-1db6-44f0-b6b4-84df4b0e2e4a
+az aks get-credentials --resource-group RG_AKS --name cluster
+
+#verificar nodes existentes
+kubectl get nodes
+
+#verificar se o pod está em execução
+kubectl get pods
+
+#crie um arquivo de manifesto para a implantação do Kubernetes
+touch kubernetes.yaml       
+
+#Aplicar o manifesto
+kubectl apply -f ./kubernetes.yaml
+
+#verificar servicos existentes no cluster
+kubectl get service
+#verificar servicos existentes no cluster especifico
+kubectl get service aks-cluster --watch
+
+#Descontinuar o manifesto
+kubectl delete -f kubernetes.yaml
+
+# Listar todas as implantações em todos os namespaces
+kubectl get deployments --all-namespaces=true
+
+# Listar todas as implantações em um namespace específico
+# Formato:kubectl get deployments --namespace <namespace-name>
+kubectl get deployments --namespace kube-system
+
+# Listar os detalhes de uma implantação específica
+# Formato:kubectl describe deployment <deployment-name> --namespace <namespace-name>
+kubectl describe deployment aks-cluster-pod-deployment --namespace default
+
+# Listar os pods que usam um rótulo específico
+# Formato:kubectl get pods -l <label-key>=<label-value> --all-namespaces=true
+kubectl get pods -l app=nginx --all-namespaces=true
+
+# Obter os logs de todos os pods com um rótulo específico
+# Formato:kubectl logs -l <label-key>=<label-value>
+kubectl logs -l app=nginx --namespace kube-system
+
+#verificar se a implantação foi bem-sucedida
+kubectl get deploy aks-cluster
+
+#
+az acr update --name cloudtreinamentos --anonymous-pull-enabled

@@ -1,0 +1,35 @@
+# AzureCli (Bash)
+
+#ACR
+az group create --name RG-ACR --location eastus2
+ACR_NAME=imersaoazure
+az acr create --resource-group RG-ACR --name $ACR_NAME --sku Premium
+az acr build --registry $ACR_NAME --image helloacrtasks:v1 .
+az acr repository list --name $ACR_NAME --output table
+az acr update -n $ACR_NAME --admin-enabled true
+az acr credential show --name $ACR_NAME
+
+#ACI
+az container create \
+    --resource-group RG-ACR \
+    --name acr-tasks \
+    --image $ACR_NAME.azurecr.io/helloacrtasks:v1 \
+    --registry-login-server $ACR_NAME.azurecr.io \
+    --ip-address Public \
+    --location eastus2 \
+    --registry-username imersaoazure \
+    --registry-password hNRFJnYfhUwMT6gDmNEZSthOxrFk+9mn 
+
+az container show --resource-group  RG-ACR --name acr-tasks --query ipAddress.ip --output table
+
+az acr replication create --registry $ACR_NAME --location japaneast
+
+rm Dockerfile 
+
+az group delete --resource-group RG-ACR --yes
+
+#Imagem
+az login
+az acr build --registry imersaoazure --image acr:1.0 .  
+
+
