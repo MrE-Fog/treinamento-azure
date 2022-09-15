@@ -1,0 +1,25 @@
+Inetalar Extensão do terraform no vscode
+
+az login
+
+az account list
+
+az account set --subscription="d7db7887-0e34-451e-98c6-a22c3c394233"
+
+Install Terraform.exe
+
+Install Hashicorp Terraform Extension
+
+Terraform Init
+
+Terraform Plan
+
+Terraform Apply
+
+Terraform Destroy
+
+az acr update --name cloudtreinamentos --anonymous-pull-enabled
+
+
+
+az ad sp create-for-rbac --scopes /subscriptions/mySubscriptionID
