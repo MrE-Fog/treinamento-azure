@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:experimental
-  FROM acr:1.0 
-  # nginx:latest
+  FROM nginx:latest 
   # RUN apt-get update 
   WORKDIR /app
   COPY . /usr/share/nginx/html
