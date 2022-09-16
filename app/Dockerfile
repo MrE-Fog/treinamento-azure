@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:experimental
+# app01
   FROM nginx:latest 
   # RUN apt-get update 
   WORKDIR /app
